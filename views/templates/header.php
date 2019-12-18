@@ -4,8 +4,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script defer src="../assets/scripts/main.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.css">
     <link rel="stylesheet" href="../assets/styles/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.css">
     <title>Ralgr's Folly</title>
 </head>
     <body>

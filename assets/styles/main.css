@@ -1,3 +1,7 @@
-main {
-    margin-top: 3.5rem;
+.chips { 
+    display: inline-block;
+    padding: 5px 1em;
+    background-color: royalblue;
+    border-radius: 20px;
+    color: white;
 }

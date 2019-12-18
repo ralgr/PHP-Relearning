@@ -14,7 +14,7 @@
     ];
 
     // Queries.
-    $selectAllQuery = "SELECT activity, tags, id FROM activities ORDER BY created_at";
+    $selectAllQuery = "SELECT * FROM activities ORDER BY created_at";
 
     try {
         // Db connection details using PDO.
@@ -28,11 +28,8 @@
         $stmt->execute();
 
         // Get result as an assoc array.
-        $result = $stmt->fetchAll(); 
+        $result = $stmt->fetchAll();
 
-        // Echoing result on the DOM.
-        echo(json_encode($result));
-        
         // Free up conn to server.
         $stmt->closeCursor();
     } 
@@ -50,7 +47,7 @@
 
     <main>
         <article>
-            <section class="hero is-primary">
+            <section class="hero">
             <div class="hero-body">
                 <div class="container">
                     <h1 class="title">
@@ -61,12 +58,44 @@
             </section>
             <section>
                 <div class="container">
-                    <h4>Activities</h4>
-                    <div class="row">
-                        <?php foreach($result as $activity) { ?>
+                    <div class="columns is-multiline">
+                        <?php 
+                            foreach($result as $activity) { 
+                            // Replacing ','-serparated tags into an array of indivual tags.
+                            $activity['tags'] = explode(', ', $activity['tags']);
+                        ?>
+    
+                            <div class="column is-4">
+                                <div class="card">
+                                    <div class="card-content">
+                                        <p class="title">
+                                            <?php echo htmlspecialchars($activity['activity']) ?> 
+                                        </p>
+                                        <div class="content">
+                                            <p>
+                                                <?php echo htmlspecialchars($activity['details']) ?>
+                                            </p>
 
-                            
+                                            <?php 
+                                                // Loop through each tags and output them.
+                                                foreach($activity['tags'] as $tag) {  
+                                            ?>
+                                                <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
+                                            <?php } ?>
 
+                                            <br>
+                                            <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
+                                                <?php echo htmlspecialchars($activity['last_modified']) ?>
+                                            </time>
+                                        </div>
+                                    </div>
+                                    <footer class="card-footer">
+                                        <a href="#" class="card-footer-item">Edit</a>
+                                        <a href="#" class="card-footer-item">Delete</a>
+                                    </footer>
+                                </div>
+                            </div>
+    
                         <?php } ?>
                     </div>
                 </div>
