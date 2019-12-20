@@ -1,18 +1,23 @@
 <?php
-    //==[VARIABLES]==
+    // ==[DB CONNECTION DETAILS]==
+    include('../util/db_connect.php');
+
+    // ==[VARIABLES]==
     $errors = [
         'email' => '', 
         'activity' => '', 
-        'tags' => ''
+        'tags' => '',
+        'details' => ''
     ];
 
     $inputs = [
         'email' => '', 
         'activity' => '', 
-        'tags' => ''
+        'tags' => '',
+        'details' => ''
     ];
 
-    //==[INPUT VALIDATION]==
+    // ==[INPUT VALIDATION]==
     // Server-side email Validation.
     if (isset($_POST['submit'])) {
         if (empty($_POST['email'])) {
@@ -31,7 +36,7 @@
             $errors['activity'] = "The activity name is required.";
         } else {
             $inputs['activity'] = $_POST['activity'];
-            if(!preg_match('/^[Aa-z-Z\s]+$/', $inputs['activity'])) {
+            if(!preg_match('/^([a-zA-Z\s])(\s*[a-zA-Z\s]*)+$/', $inputs['activity'])) {
                 $errors['activity'] = 'Valid activity name is required.';
             }
         }
@@ -49,20 +54,60 @@
         }
     };
 
+    // Server-side details Validation.
+    if (isset($_POST['submit'])) {
+        if (empty($_POST['details'])) {
+            $errors['details'] = "Activity details required.";
+        } else {
+            $inputs['details'] = $_POST['details'];
+        }
+    };
+
     //==[REDIRECT]==
     // Redirect to index if no errors.
     if (array_filter($errors)) {
         echo "Error in form.";
-    } else {
-        // Clear inputs on submit if no errors.
-        if (isset($_POST['submit'])) {
-            $inputs = [
-                'email' => '', 
-                'activity' => '', 
-                'tags' => ''
-            ];
+    } elseif (isset($_POST['submit'])) { 
+        // ==[QUERIES]==
+        // Query is for prepared statements.
+        $insertNewActivityQuery = 
+        "INSERT INTO activities (activity, tags, details, email)
+        VALUES (:activity, :tags, :details, :email)";  
+
+        // ==[EXECUTIONS]==
+        try {
+            // Db connection details using PDO.
+            $conn = new PDO($dsn, $username, $password, $options);
+
+            // Querying the database.
+            $stmt = $conn->prepare($insertNewActivityQuery);
+            $executedStmt = $stmt->execute([
+                'activity' => $inputs['activity'], 
+                'tags' => $inputs['tags'], 
+                'details' => $inputs['details'], 
+                'email' => $inputs['email']
+            ]);
+
+            // ==[DB QUERY SUCCESS CHECK]==
+            if ($executedStmt) {
+                // Clear inputs after submit.
+                $inputs = [
+                    'email' => '', 
+                    'activity' => '', 
+                    'tags' => '',
+                    'details' => ''
+                ];
     
-            header('Location: index.php');
+                // Redirect to index.
+                header('Location: index.php');
+            }
+
+            // Free up conn to server.
+            $stmt->closeCursor();
+        } 
+        // ==[ERR HANDLING]==
+        catch(PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
         }
     }
 ?>
@@ -110,35 +155,42 @@
                                                     ?>"
                                                     id="activity" 
                                                     name="activity"
-                                                    value="<?php echo $inputs['activity'] ?>">
+                                                    value="<?php echo htmlspecialchars($inputs['activity']) ?>">
                                             </div>
-                                            <p class="help is-danger"><?php echo htmlspecialchars($errors['activity']) ?></p>
+                                            <p class="help is-danger"><?php echo $errors['activity'] ?></p>
                                         </div>
                                 
                                         <div class="field">
                                             <label for="tags">Tags</label>
                                             <div class="control">
                                                 <input type="text" 
-                                                    class="input <?php 
+                                                    class="input 
+                                                    <?php 
                                                         if ($errors['tags']) {
                                                             echo "is-danger";
                                                         }
                                                     ?>"
                                                     id="tags" 
                                                     name="tags"
-                                                    value="<?php echo $inputs['tags'] ?>">
+                                                    value="<?php echo htmlspecialchars($inputs['tags']) ?>">
                                             </div>
-                                            <p class="help is-danger"><?php echo htmlspecialchars($errors['tags']) ?></p>
+                                            <p class="help is-danger"><?php echo $errors['tags'] ?></p>
                                         </div>
                                 
                                         <div class="field">
                                             <label for="details">Details</label>
                                             <div class="control">
                                                 <textarea name="details" 
-                                                    class="textarea"
+                                                    class="textarea 
+                                                    <?php 
+                                                        if ($errors['tags']) {
+                                                            echo "is-danger";
+                                                        }
+                                                    ?>"
                                                     id="details" 
                                                     cols="30" 
-                                                    rows="10"></textarea>
+                                                    rows="10"><?php echo htmlspecialchars($inputs['details']) ?></textarea>
+                                                <p class="help is-danger"><?php echo $errors['details'] ?></p>
                                             </div>
                                         </div>
         

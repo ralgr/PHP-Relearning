@@ -1,28 +1,15 @@
 <?php
-    //==[VARIABLES]==
-    // Db and user details.
-    $servername = "localhost";
-    $dbname = "ralgrs_folly";
-    $username = "ralgr";
-    $password = "knightz78";
-    
-    // Connection details.
-    $dsn = "mysql:host=$servername;dbname=$dbname";
-    $options = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ];
+    // ==[DB CONNECTION DETAILS]==
+    include('../util/db_connect.php');
 
-    // Queries.
+    // ==[QUERIES]==
     $selectAllQuery = "SELECT * FROM activities ORDER BY created_at";
 
+    // ==[EXECUTIONS]==
     try {
         // Db connection details using PDO.
         $conn = new PDO($dsn, $username, $password, $options);
-        // set the PDO error mode to exception
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        //==[EXECUTIONS]==
         // Querying the database.
         $stmt = $conn->prepare($selectAllQuery);
         $stmt->execute();
@@ -33,6 +20,7 @@
         // Free up conn to server.
         $stmt->closeCursor();
     } 
+    // ==[ERR HANDLING]==
     catch(PDOException $e) {
         echo "Connection failed: " . $e->getMessage();
     }
@@ -60,7 +48,7 @@
                 <div class="container">
                     <div class="columns is-multiline">
                         <?php 
-                            foreach($result as $activity) { 
+                            foreach($result as $activity): 
                             // Replacing ','-serparated tags into an array of indivual tags.
                             $activity['tags'] = explode(', ', $activity['tags']);
                         ?>
@@ -72,21 +60,24 @@
                                             <?php echo htmlspecialchars($activity['activity']) ?> 
                                         </p>
                                         <div class="content">
-                                            <p>
+                                            <p class="card__details">
                                                 <?php echo htmlspecialchars($activity['details']) ?>
                                             </p>
 
-                                            <?php 
-                                                // Loop through each tags and output them.
-                                                foreach($activity['tags'] as $tag) {  
-                                            ?>
-                                                <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
-                                            <?php } ?>
+                                            <p class="card__tags">
+                                                <?php 
+                                                    // Loop through each tags and output them.
+                                                    foreach($activity['tags'] as $tag):  
+                                                ?>
+                                                    <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
+                                                <?php endforeach; ?>
+                                            </p>
 
-                                            <br>
-                                            <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
-                                                <?php echo htmlspecialchars($activity['last_modified']) ?>
-                                            </time>
+                                            <p class="card__last-modified">
+                                                <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
+                                                    <?php echo htmlspecialchars($activity['last_modified']) ?>
+                                                </time>
+                                            </p>
                                         </div>
                                     </div>
                                     <footer class="card-footer">
@@ -96,7 +87,7 @@
                                 </div>
                             </div>
     
-                        <?php } ?>
+                            <?php endforeach; ?>
                     </div>
                 </div>
             </section>

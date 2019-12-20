@@ -1,7 +1,11 @@
 .chips { 
     display: inline-block;
-    padding: 5px 1em;
-    background-color: royalblue;
+    padding: 5px 1rem;
+    background-color: rgb(120, 62, 255);
     border-radius: 20px;
+    color: white;
+}
+
+.chips:hover {
     color: white;
 }

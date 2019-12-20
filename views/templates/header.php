@@ -13,7 +13,9 @@
             <nav class="navbar" role="navigation">
                 <div class="navbar-brand">
                     <figure class="image is-96x96">
-                        <img role="img" src="../assets/img/stickBW.svg" alt="Ralgr's Folly Logo">
+                        <a href="index.php">
+                            <img role="img" src="../assets/img/stickBW.svg" alt="Ralgr's Folly Logo">
+                        </a>
                     </figure>
                     <a role="button" class="navbar-burger" aria-label="menu" 
                         aria-expanded="false" data-target="menuItems">
