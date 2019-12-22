@@ -63,7 +63,6 @@
                                             <p class="card__details">
                                                 <?php echo htmlspecialchars($activity['details']) ?>
                                             </p>
-
                                             <p class="card__tags">
                                                 <?php 
                                                     // Loop through each tags and output them.
@@ -72,7 +71,6 @@
                                                     <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
                                                 <?php endforeach; ?>
                                             </p>
-
                                             <p class="card__last-modified">
                                                 <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
                                                     <?php echo htmlspecialchars($activity['last_modified']) ?>
@@ -81,6 +79,7 @@
                                         </div>
                                     </div>
                                     <footer class="card-footer">
+                                        <a href="details.php?id=<?php echo htmlspecialchars($activity['id']) ?>" class="card-footer-item">Details</a>
                                         <a href="#" class="card-footer-item">Edit</a>
                                         <a href="#" class="card-footer-item">Delete</a>
                                     </footer>
