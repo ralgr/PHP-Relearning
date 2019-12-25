@@ -15,9 +15,21 @@
         'tags' => '',
         'details' => ''
     ];
+    $submitName = "submit";
+    if (isset($_GET['id']) 
+        && $_GET['id'] != null 
+        && isset($_GET['editMode']) 
+        && $_GET['editMode'] == true) 
+    {
+        $submitName = "editSubmit";
+    }
 
     // ==[EDIT GET CODE BLOCK]==
-    if (isset($_GET['id'])) {
+    if (isset($_GET['id']) 
+        && $_GET['id'] != null 
+        && isset($_GET['editMode']) 
+        && $_GET['editMode'] == true) 
+    {
         // ==[LOCAL VARIABLES]==
         $activityId = $_GET['id'];
 
@@ -50,6 +62,14 @@
             'tags' => $result['tags'],
             'details' => $result['details']
         ];
+    }
+
+    // Create a save block for edited Entries
+    // Make sure the last edited column is updated
+    // Update query
+    // ==[EDITING POST CODE BLOCK]==
+    if (isset($_POST['editSubmit'])) {
+        echo 'Hooo baby';
     }
 
     // ==[SAVING POST CODE BLOCK]==
@@ -137,9 +157,6 @@
             }
         }
     };
-
-    // Create a save block for edited Entries
-    // Make sure the last edited column is updated
 ?>
 
 <!DOCTYPE html>
@@ -233,7 +250,7 @@
                                         </div>
         
                                         <div class="control">
-                                            <input type="submit" name="submit" class="button is-primary" value="Submit">
+                                            <input type="submit" name="<?php echo htmlspecialchars($submitName); ?>" class="button is-primary" value="Submit">
                                         </div>
                                     </form>  
                                 </div>
