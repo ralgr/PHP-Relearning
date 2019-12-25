@@ -35,58 +35,54 @@
 
     <main>
         <article>
-            <section class="hero">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title">
-                        Activities
-                    </h1>
+            <section class="section">
+                <div class="hero-body">
+                    <div class="container">
+                        <h1 class="title">Activities</h1>
+                    </div>
                 </div>
-            </div>
-            </section>
-            <section>
                 <div class="container">
                     <div class="columns is-multiline">
+
                         <?php 
                             foreach($result as $activity): 
                             // Replacing ','-serparated tags into an array of indivual tags.
                             $activity['tags'] = explode(', ', $activity['tags']);
                         ?>
-    
-                            <div class="column is-4">
-                                <div class="card">
-                                    <div class="card-content">
-                                        <p class="title">
-                                            <?php echo htmlspecialchars($activity['activity']) ?> 
+                        <div class="column is-4">
+                            <div class="card">
+                                <div class="card-content">
+                                    <p class="title">
+                                        <?php echo htmlspecialchars($activity['activity']) ?> 
+                                    </p>
+                                    <div class="content">
+                                        <p class="card__details">
+                                            <?php echo htmlspecialchars($activity['details']) ?>
                                         </p>
-                                        <div class="content">
-                                            <p class="card__details">
-                                                <?php echo htmlspecialchars($activity['details']) ?>
-                                            </p>
-                                            <p class="card__tags">
-                                                <?php 
+                                        <p class="card__tags">
+                                            <?php 
                                                     // Loop through each tags and output them.
-                                                    foreach($activity['tags'] as $tag):  
-                                                ?>
-                                                    <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
-                                                <?php endforeach; ?>
-                                            </p>
-                                            <p class="card__last-modified">
-                                                <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
-                                                    <?php echo htmlspecialchars($activity['last_modified']) ?>
-                                                </time>
-                                            </p>
-                                        </div>
+                                                foreach($activity['tags'] as $tag):  
+                                            ?>
+                                                <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
+                                            <?php endforeach; ?>
+                                        </p>
+                                        <p class="card__last-modified">
+                                            <time datetime="<?php echo htmlspecialchars($activity['last_modified']) ?>">
+                                                <?php echo htmlspecialchars($activity['last_modified']) ?>
+                                            </time>
+                                        </p>
                                     </div>
-                                    <footer class="card-footer">
-                                        <a href="details.php?id=<?php echo htmlspecialchars($activity['id']) ?>" class="card-footer-item">Details</a>
-                                        <a href="#" class="card-footer-item">Edit</a>
-                                        <a href="#" class="card-footer-item">Delete</a>
-                                    </footer>
                                 </div>
+                                <footer class="card-footer">
+                                    <a href="details.php?id=<?php echo htmlspecialchars($activity['id']) ?>" class="card-footer-item">Details</a>
+                                    <a href="addActivity.php?id=<?php echo htmlspecialchars($activity['id']) ?>&editMode=true" class="card-footer-item">Edit</a>
+                                    <a href="#" class="card-footer-item">Delete</a>
+                                </footer>
                             </div>
-    
-                            <?php endforeach; ?>
+                        </div>
+                        <?php endforeach; ?>
+
                     </div>
                 </div>
             </section>

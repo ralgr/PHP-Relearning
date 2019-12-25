@@ -41,7 +41,19 @@
     require('./templates/header.php');
 ?>
 
-    <h2>Details</h2>
+    <main>
+        <article>
+            <section class="section">
+                <div class="hero-body">
+                    <div class="container">
+                        <h1 class="title">
+                            <?php echo htmlspecialchars($result['activity']) ?>
+                        </h1>
+                    </div>
+                </div>
+            </section>
+        </article>
+    </main>
 
 <?php
     require('./templates/footer.php');

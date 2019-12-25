@@ -2,14 +2,13 @@
     // ==[DB CONNECTION DETAILS]==
     include('../util/db_connect.php');
 
-    // ==[VARIABLES]==
+    // ==[GLOBAL VARIABLES]==
     $errors = [
         'email' => '', 
         'activity' => '', 
         'tags' => '',
         'details' => ''
     ];
-
     $inputs = [
         'email' => '', 
         'activity' => '', 
@@ -17,9 +16,46 @@
         'details' => ''
     ];
 
-    // ==[INPUT VALIDATION]==
-    // Server-side email Validation.
+    // ==[EDIT GET CODE BLOCK]==
+    if (isset($_GET['id'])) {
+        // ==[LOCAL VARIABLES]==
+        $activityId = $_GET['id'];
+
+        // Get the data from the db using id
+        // ==[QUERIES]==
+        $getActivityWithId = "SELECT * FROM activities WHERE id = :activityId";
+
+        // ==[EXECUTIONS]==
+        try {
+            // Conn to db.
+            $conn = new PDO($dsn, $username, $password, $options);
+
+            // Querying the db.
+            $stmt = $conn->prepare($getActivityWithId);
+            $stmt->execute(['activityId'=>$activityId]);
+
+            // Fetch results.
+            $result = $stmt->fetch();
+            
+            // Free up conn to server.
+            $stmt->closeCursor();
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+        }
+
+        // Pre-filling form with data from db.
+        $inputs = [
+            'email' => $result['email'], 
+            'activity' => $result['activity'], 
+            'tags' => $result['tags'],
+            'details' => $result['details']
+        ];
+    }
+
+    // ==[SAVING POST CODE BLOCK]==
     if (isset($_POST['submit'])) {
+        // ==[INPUT VALIDATION]==
+        // Email.
         if (empty($_POST['email'])) {
             $errors['email'] = "An email is required.";
         } else {
@@ -28,10 +64,7 @@
                 $errors['email'] = 'Valid email address required.';
             }
         }
-    };
-
-    // Server-side activity Validation.
-    if (isset($_POST['submit'])) {
+        // Activity.
         if (empty($_POST['activity'])) {
             $errors['activity'] = "The activity name is required.";
         } else {
@@ -40,10 +73,7 @@
                 $errors['activity'] = 'Valid activity name is required.';
             }
         }
-    };
-
-    // Server-side tags Validation.
-    if (isset($_POST['submit'])) {
+        // Tags.
         if (empty($_POST['tags'])) {
             $errors['tags'] = "At least one tag required.";
         } else {
@@ -52,64 +82,64 @@
                 $errors['tags'] = 'Tags need to be comma separated.';
             }
         }
-    };
-
-    // Server-side details Validation.
-    if (isset($_POST['submit'])) {
+        // Details.
         if (empty($_POST['details'])) {
             $errors['details'] = "Activity details required.";
         } else {
             $inputs['details'] = $_POST['details'];
         }
+        
+        // ==[SAVE AND REDIRECT]==
+        // Redirect to index if no errors.
+        if (array_filter($errors)) {
+            echo "Error in form.";
+        } else { 
+            // ==[QUERIES]==
+            // Query is for prepared statements.
+            $insertNewActivityQuery = 
+            "INSERT INTO activities (activity, tags, details, email)
+            VALUES (:activity, :tags, :details, :email)";  
+    
+            // ==[EXECUTIONS]==
+            try {
+                // Db connection details using PDO.
+                $conn = new PDO($dsn, $username, $password, $options);
+    
+                // Querying the database.
+                $stmt = $conn->prepare($insertNewActivityQuery);
+                $executedStmt = $stmt->execute([
+                    'activity' => $inputs['activity'], 
+                    'tags' => $inputs['tags'], 
+                    'details' => $inputs['details'], 
+                    'email' => $inputs['email']
+                ]);
+    
+                // ==[DB QUERY SUCCESS CHECK]==
+                if ($executedStmt) {
+                    // Clear inputs after submit.
+                    $inputs = [
+                        'email' => '', 
+                        'activity' => '', 
+                        'tags' => '',
+                        'details' => ''
+                    ];
+        
+                    // Redirect to index.
+                    header('Location: index.php');
+                }
+    
+                // Free up conn to server.
+                $stmt->closeCursor();
+            } 
+            // ==[ERR HANDLING]==
+            catch(PDOException $e) {
+                echo "Connection failed: " . $e->getMessage();
+            }
+        }
     };
 
-    //==[REDIRECT]==
-    // Redirect to index if no errors.
-    if (array_filter($errors)) {
-        echo "Error in form.";
-    } elseif (isset($_POST['submit'])) { 
-        // ==[QUERIES]==
-        // Query is for prepared statements.
-        $insertNewActivityQuery = 
-        "INSERT INTO activities (activity, tags, details, email)
-        VALUES (:activity, :tags, :details, :email)";  
-
-        // ==[EXECUTIONS]==
-        try {
-            // Db connection details using PDO.
-            $conn = new PDO($dsn, $username, $password, $options);
-
-            // Querying the database.
-            $stmt = $conn->prepare($insertNewActivityQuery);
-            $executedStmt = $stmt->execute([
-                'activity' => $inputs['activity'], 
-                'tags' => $inputs['tags'], 
-                'details' => $inputs['details'], 
-                'email' => $inputs['email']
-            ]);
-
-            // ==[DB QUERY SUCCESS CHECK]==
-            if ($executedStmt) {
-                // Clear inputs after submit.
-                $inputs = [
-                    'email' => '', 
-                    'activity' => '', 
-                    'tags' => '',
-                    'details' => ''
-                ];
-    
-                // Redirect to index.
-                header('Location: index.php');
-            }
-
-            // Free up conn to server.
-            $stmt->closeCursor();
-        } 
-        // ==[ERR HANDLING]==
-        catch(PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
-    }
+    // Create a save block for edited Entries
+    // Make sure the last edited column is updated
 ?>
 
 <!DOCTYPE html>
@@ -120,9 +150,16 @@
 ?>
     <main>
         <article>
-            <section>
-                <div class="container is-fullhd">
-                    <div class="columns is-centered">
+            <section class="section">
+                <div class="hero-body">
+                    <div class="container">
+                        <h1 class="title">
+                            Add an Activity
+                        </h1>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="columns">
                         <div class="column is-two-fifths">
                             <div class="card">
                                 <h4 role="heading" class="card-header-title">Add an activity</h4>
@@ -188,6 +225,7 @@
                                                         }
                                                     ?>"
                                                     id="details" 
+                                                    maxlength="255"
                                                     cols="30" 
                                                     rows="10"><?php echo htmlspecialchars($inputs['details']) ?></textarea>
                                                 <p class="help is-danger"><?php echo $errors['details'] ?></p>
