@@ -1,162 +1,6 @@
 <?php
-    // ==[DB CONNECTION DETAILS]==
-    include('../util/db_connect.php');
-
-    // ==[GLOBAL VARIABLES]==
-    $errors = [
-        'email' => '', 
-        'activity' => '', 
-        'tags' => '',
-        'details' => ''
-    ];
-    $inputs = [
-        'email' => '', 
-        'activity' => '', 
-        'tags' => '',
-        'details' => ''
-    ];
-    $submitName = "submit";
-    if (isset($_GET['id']) 
-        && $_GET['id'] != null 
-        && isset($_GET['editMode']) 
-        && $_GET['editMode'] == true) 
-    {
-        $submitName = "editSubmit";
-    }
-
-    // ==[EDIT GET CODE BLOCK]==
-    if (isset($_GET['id']) 
-        && $_GET['id'] != null 
-        && isset($_GET['editMode']) 
-        && $_GET['editMode'] == true) 
-    {
-        // ==[LOCAL VARIABLES]==
-        $activityId = $_GET['id'];
-
-        // Get the data from the db using id
-        // ==[QUERIES]==
-        $getActivityWithId = "SELECT * FROM activities WHERE id = :activityId";
-
-        // ==[EXECUTIONS]==
-        try {
-            // Conn to db.
-            $conn = new PDO($dsn, $username, $password, $options);
-
-            // Querying the db.
-            $stmt = $conn->prepare($getActivityWithId);
-            $stmt->execute(['activityId'=>$activityId]);
-
-            // Fetch results.
-            $result = $stmt->fetch();
-            
-            // Free up conn to server.
-            $stmt->closeCursor();
-        } catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
-
-        // Pre-filling form with data from db.
-        $inputs = [
-            'email' => $result['email'], 
-            'activity' => $result['activity'], 
-            'tags' => $result['tags'],
-            'details' => $result['details']
-        ];
-    }
-
-    // Create a save block for edited Entries
-    // Make sure the last edited column is updated
-    // Update query
-    // ==[EDITING POST CODE BLOCK]==
-    if (isset($_POST['editSubmit'])) {
-        echo 'Hooo baby';
-    }
-
-    // ==[SAVING POST CODE BLOCK]==
-    if (isset($_POST['submit'])) {
-        // ==[INPUT VALIDATION]==
-        // Email.
-        if (empty($_POST['email'])) {
-            $errors['email'] = "An email is required.";
-        } else {
-            $inputs['email'] = $_POST['email'];
-            if(!filter_var($inputs['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = 'Valid email address required.';
-            }
-        }
-        // Activity.
-        if (empty($_POST['activity'])) {
-            $errors['activity'] = "The activity name is required.";
-        } else {
-            $inputs['activity'] = $_POST['activity'];
-            if(!preg_match('/^([a-zA-Z\s])(\s*[a-zA-Z\s]*)+$/', $inputs['activity'])) {
-                $errors['activity'] = 'Valid activity name is required.';
-            }
-        }
-        // Tags.
-        if (empty($_POST['tags'])) {
-            $errors['tags'] = "At least one tag required.";
-        } else {
-            $inputs['tags'] = $_POST['tags'];
-            if(!preg_match('/^([a-zA-Z\s]+)(,\s*[a-zA-Z\s]*)*$/', $inputs['tags'])) {
-                $errors['tags'] = 'Tags need to be comma separated.';
-            }
-        }
-        // Details.
-        if (empty($_POST['details'])) {
-            $errors['details'] = "Activity details required.";
-        } else {
-            $inputs['details'] = $_POST['details'];
-        }
-        
-        // ==[SAVE AND REDIRECT]==
-        // Redirect to index if no errors.
-        if (array_filter($errors)) {
-            echo "Error in form.";
-        } else { 
-            // ==[QUERIES]==
-            // Query is for prepared statements.
-            $insertNewActivityQuery = 
-            "INSERT INTO activities (activity, tags, details, email)
-            VALUES (:activity, :tags, :details, :email)";  
-    
-            // ==[EXECUTIONS]==
-            try {
-                // Db connection details using PDO.
-                $conn = new PDO($dsn, $username, $password, $options);
-    
-                // Querying the database.
-                $stmt = $conn->prepare($insertNewActivityQuery);
-                $executedStmt = $stmt->execute([
-                    'activity' => $inputs['activity'], 
-                    'tags' => $inputs['tags'], 
-                    'details' => $inputs['details'], 
-                    'email' => $inputs['email']
-                ]);
-    
-                // ==[DB QUERY SUCCESS CHECK]==
-                if ($executedStmt) {
-                    // Clear inputs after submit.
-                    $inputs = [
-                        'email' => '', 
-                        'activity' => '', 
-                        'tags' => '',
-                        'details' => ''
-                    ];
-        
-                    // Redirect to index.
-                    header('Location: index.php');
-                }
-    
-                // Free up conn to server.
-                $stmt->closeCursor();
-            } 
-            // ==[ERR HANDLING]==
-            catch(PDOException $e) {
-                echo "Connection failed: " . $e->getMessage();
-            }
-        }
-    };
+    // ==[ACTIVITY CONTROLLER]==
+    include('../controllers/activity.php');
 ?>
 
 <!DOCTYPE html>
@@ -181,21 +25,22 @@
                             <div class="card">
                                 <h4 role="heading" class="card-header-title">Add an activity</h4>
                                 <div class="card-content">
-                                    <form action="addActivity.php" method="POST">
+                                    <form action="<?php echo htmlentities($formAction) // ==[DC: form action]== ?>" method="POST">
                                         <div class="field">
                                             <label for="email">Email</label>
                                             <div class="control">
                                                 <input type="email" 
                                                     class="input <?php 
+                                                        // ==[DC: error class]==
                                                         if ($errors['email']) {
                                                             echo "is-danger";
                                                         }
                                                     ?>"
                                                     id="email" 
                                                     name="email"
-                                                    value="<?php echo htmlspecialchars($inputs['email']) ?>">
+                                                    value="<?php echo htmlspecialchars($inputs['email']) // ==[DC: email input value]== ?>">
                                             </div>
-                                            <p class="help is-danger"><?php echo $errors['email'] ?></p>
+                                            <p class="help is-danger"><?php echo $errors['email'] // ==[DC: email error]== ?></p>
                                         </div>
                                 
                                         <div class="field">
@@ -203,15 +48,16 @@
                                             <div class="control">
                                                 <input type="text" 
                                                     class="input <?php 
+                                                        // ==[DC: error class]==
                                                         if ($errors['activity']) {
                                                             echo "is-danger";
                                                         }
                                                     ?>"
                                                     id="activity" 
                                                     name="activity"
-                                                    value="<?php echo htmlspecialchars($inputs['activity']) ?>">
+                                                    value="<?php echo htmlspecialchars($inputs['activity']) // ==[DC: activity value]== ?>">
                                             </div>
-                                            <p class="help is-danger"><?php echo $errors['activity'] ?></p>
+                                            <p class="help is-danger"><?php echo $errors['activity'] // ==[DC: error msg]== ?></p>
                                         </div>
                                 
                                         <div class="field">
@@ -220,15 +66,16 @@
                                                 <input type="text" 
                                                     class="input 
                                                     <?php 
+                                                        // ==[DC: tags class]==
                                                         if ($errors['tags']) {
                                                             echo "is-danger";
                                                         }
                                                     ?>"
                                                     id="tags" 
                                                     name="tags"
-                                                    value="<?php echo htmlspecialchars($inputs['tags']) ?>">
+                                                    value="<?php echo htmlspecialchars($inputs['tags']) // ==[DC: tags value]== ?>">
                                             </div>
-                                            <p class="help is-danger"><?php echo $errors['tags'] ?></p>
+                                            <p class="help is-danger"><?php echo $errors['tags'] // ==[DC: error msg]== ?></p>
                                         </div>
                                 
                                         <div class="field">
@@ -237,6 +84,7 @@
                                                 <textarea name="details" 
                                                     class="textarea 
                                                     <?php 
+                                                        // ==[DC: details class]==
                                                         if ($errors['tags']) {
                                                             echo "is-danger";
                                                         }
@@ -244,13 +92,13 @@
                                                     id="details" 
                                                     maxlength="255"
                                                     cols="30" 
-                                                    rows="10"><?php echo htmlspecialchars($inputs['details']) ?></textarea>
-                                                <p class="help is-danger"><?php echo $errors['details'] ?></p>
+                                                    rows="10"><?php echo htmlspecialchars($inputs['details']) // ==[DC: details value]== ?></textarea>
+                                                <p class="help is-danger"><?php echo $errors['details'] // ==[DC: error msg]== ?></p>
                                             </div>
                                         </div>
         
                                         <div class="control">
-                                            <input type="submit" name="<?php echo htmlspecialchars($submitName); ?>" class="button is-primary" value="Submit">
+                                            <input type="submit" name="<?php echo htmlspecialchars($submitName); // ==[DC: submit name]== ?>" class="button is-primary" value="Submit">
                                         </div>
                                     </form>  
                                 </div>
