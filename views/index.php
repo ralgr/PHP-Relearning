@@ -61,7 +61,7 @@
                                         </p>
                                         <p class="card__tags">
                                             <?php 
-                                                    // Loop through each tags and output them.
+                                                // Loop through each tags and output them.
                                                 foreach($activity['tags'] as $tag):  
                                             ?>
                                                 <a href="#" class="chips"><?php echo htmlspecialchars("{$tag}") ?></a>
