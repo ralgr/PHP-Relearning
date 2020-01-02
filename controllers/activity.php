@@ -46,8 +46,8 @@
 
         // ==[EXECUTIONS]==
         try {
-            // Conn to db.
-            $conn = new PDO($dsn, $username, $password, $options);
+            // new PDO.
+            include('../util/new_pdo.php');
 
             // Querying the db.
             $stmt = $conn->prepare($getActivityWithId);
@@ -91,11 +91,12 @@
         // ==[UPDATE AND REDIRECT]==
         // Redirect to index if no errors.
         if (array_filter($errors)) {
-            echo "Error in form.";
+            // Add error handling here.
         } else {
             // ==[EXECUTIONS]==
             try {
-                $conn = new PDO($dsn, $username, $password, $options);
+                // new PDO.
+                include('../util/new_pdo.php');
     
                 $stmt = $conn->prepare($updateActivityWithId);
                 $executedStmt = $stmt->execute([
@@ -115,12 +116,13 @@
                         'details' => ''
                     ];
         
+                    // Free up conn to server.
+                    $stmt->closeCursor();
+
                     // Redirect to index.
                     header('Location: index.php');
                 }
     
-                // Free up conn to server.
-                $stmt->closeCursor();
             } 
             // ==[ERR HANDLING]==
             catch (PDOException $th) {
@@ -131,7 +133,6 @@
 
     // ==[SAVING POST CODE BLOCK]==
     if (isset($_POST['submit'])) {
-        echo "SAVING ACTIVATED";
         // ==[INPUT VALIDATION]==
         include('../util/input_validation.php');
         
@@ -144,12 +145,12 @@
         // ==[SAVE AND REDIRECT]==
         // Redirect to index if no errors.
         if (array_filter($errors)) {
-            echo "Error in form.";
+            // Add error handling here.
         } else { 
             // ==[EXECUTIONS]==
             try {
-                // Db connection details using PDO.
-                $conn = new PDO($dsn, $username, $password, $options);
+                // // new PDO.
+                include('../util/new_pdo.php');
     
                 // Querying the database.
                 $stmt = $conn->prepare($insertNewActivityQuery);
@@ -170,12 +171,13 @@
                         'details' => ''
                     ];
         
+                    // Free up conn to server.
+                    $stmt->closeCursor();
+                    
                     // Redirect to index.
                     header('Location: index.php');
                 }
     
-                // Free up conn to server.
-                $stmt->closeCursor();
             } 
             // ==[ERR HANDLING]==
             catch(PDOException $e) {

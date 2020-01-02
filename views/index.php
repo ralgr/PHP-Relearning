@@ -1,29 +1,6 @@
 <?php
-    // ==[DB CONNECTION DETAILS]==
-    include('../util/db_connect.php');
-
-    // ==[QUERIES]==
-    $selectAllQuery = "SELECT * FROM activities ORDER BY created_at";
-
-    // ==[EXECUTIONS]==
-    try {
-        // Db connection details using PDO.
-        $conn = new PDO($dsn, $username, $password, $options);
-
-        // Querying the database.
-        $stmt = $conn->prepare($selectAllQuery);
-        $stmt->execute();
-
-        // Get result as an assoc array.
-        $result = $stmt->fetchAll();
-
-        // Free up conn to server.
-        $stmt->closeCursor();
-    } 
-    // ==[ERR HANDLING]==
-    catch(PDOException $e) {
-        echo "Connection failed: " . $e->getMessage();
-    }
+    // ==[INDEX CONTROLLER]==
+   require('../controllers/indexCtrl.php'); 
 ?>
 
 <!DOCTYPE html>
@@ -51,10 +28,24 @@
                         ?>
                         <div class="column is-4">
                             <div class="card">
-                                <div class="card-content">
-                                    <p class="title">
-                                        <?php echo htmlspecialchars($activity['activity']) ?> 
+                                <!-- ==[CARD HEADER]== -->
+                                <header class="card-header">
+                                    <p class="card-header-title">
+                                        <?php echo htmlspecialchars($activity['activity']) ?>
                                     </p>
+                                    <a href="#" class="card-header-icon" aria-label="more options">
+                                    <span class="icon">
+                                        <form action="index.php" method="POST">
+                                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($activity['id']) ?>">
+                                            <button type="submit" class="button is-danger is-inverted">
+                                                <i class="fas fa-times" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </span>
+                                    </a>
+                                </header>
+                                <!-- ==[CARD CONTENT]== -->
+                                <div class="card-content">
                                     <div class="content">
                                         <p class="card__details">
                                             <?php echo htmlspecialchars($activity['details']) ?>
@@ -74,10 +65,10 @@
                                         </p>
                                     </div>
                                 </div>
+                                <!-- ==[CARD FOOTER]== -->
                                 <footer class="card-footer">
                                     <a href="details.php?id=<?php echo htmlspecialchars($activity['id']) ?>" class="card-footer-item">Details</a>
                                     <a href="addActivity.php?id=<?php echo htmlspecialchars($activity['id']) ?>&editMode=true" class="card-footer-item">Edit</a>
-                                    <a href="#" class="card-footer-item">Delete</a>
                                 </footer>
                             </div>
                         </div>
